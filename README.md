@@ -37,10 +37,11 @@ distribuição via npm). Localmente, com o emsdk já instalado e ativado:
 
 ```bash
 git submodule update --init --recursive
-pip install --break-system-packages scons   # SCons não vem com o emsdk
+pip install scons                           # SCons não vem com o emsdk
+                                            # (em ambientes PEP 668 pode ser preciso --break-system-packages)
 cd engine
 source $PATH_TO_EMSDK/emsdk_env.sh          # se não estiver num container com emsdk já ativo
-emscons scons -j8 mode=release
+emscons scons -j8 mode=release werror=0     # werror=0: warnings novos do emscripten não viram erro fatal
 ```
 
 Isso gera `engine/build/stellarium-web-engine.js` e
@@ -48,7 +49,7 @@ Isso gera `engine/build/stellarium-web-engine.js` e
 
 No CI (GitHub Actions, ver `.github/workflows/build.yml`), o job roda dentro do
 container `emscripten/emsdk:3.1.61` (que já tem `emcc`/`emscons` no PATH),
-instala o `scons` via pip e roda o mesmo `emscons scons -j8 mode=release`. Os
+instala o `scons` via pip e roda o mesmo `emscons scons -j8 mode=release werror=0`. Os
 artefatos são publicados como artifact `engine-dist` de cada run.
 
 ## Deploy manual
