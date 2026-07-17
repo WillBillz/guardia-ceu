@@ -52,16 +52,39 @@ container `emscripten/emsdk:3.1.61` (que já tem `emcc`/`emscons` no PATH),
 instala o `scons` via pip e roda o mesmo `emscons scons -j8 mode=release werror=0`. Os
 artefatos são publicados como artifact `engine-dist` de cada run.
 
-## Deploy manual
+## Deploy
 
 O mini-app standalone (Fase 1 em diante) é hospedado à parte do Guardia
-principal. Deploy manual via Vercel CLI, na mesma conta usada pelo Guardia:
+principal, em produção: **https://guardia-ceu.vercel.app**. Projeto Vercel
+`aunexa/guardia-ceu`, mesma conta/time usada pelo Guardia principal
+(`willianpoliveira350`, time **Aunexa** — nunca `odespertarholistico`).
 
-```bash
-npx vercel deploy --prod
-```
+Sem git connect — push para este repositório **não** deploya sozinho. O fluxo
+é manual, em 3 passos:
 
-Sem git connect — push para este repositório não deploya sozinho.
+1. **CI builda o motor** — o workflow `.github/workflows/build.yml` compila o
+   Stellarium Web Engine (Emscripten/WASM) e publica o resultado como artifact
+   `engine-dist` do run (contém `.js`/`.wasm` do engine + `index.html`/`ceu.js`/
+   `ceu.css` do mini-app + `skydata/` — página 100% self-contained).
+2. **Baixar o artifact do último run verde** para uma pasta `dist/` local
+   (não versionada, está no `.gitignore`):
+
+   ```bash
+   gh run download <run-id> -n engine-dist -D dist
+   ```
+
+3. **Deploy via Vercel CLI**, a partir de dentro de `dist/` (não-interativo —
+   necessário porque `.vercel/` some a cada novo `dist/` baixado, então
+   relinkar é normal a cada deploy):
+
+   ```bash
+   cd dist
+   npx vercel link --yes --project guardia-ceu --scope aunexa
+   npx vercel deploy --prod --yes
+   ```
+
+`vercel.json` não foi necessário (site estático de página única, sem rotas
+adicionais nem necessidade de `cleanUrls`).
 
 ## Licença
 
