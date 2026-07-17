@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v4
         with: { submodules: recursive }
       - name: Instalar scons
-        run: pip install --break-system-packages scons
+        run: pip install scons
       - name: Build do engine
         run: |
           cd engine
