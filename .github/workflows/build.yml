@@ -12,7 +12,13 @@ jobs:
       - name: Build do engine
         run: |
           cd engine
-          emscons scons -j8 mode=release
+          # werror=0: o emscripten atual (3.1.61) reporta um warning novo
+          # ("linker setting ignored during compilation") para flags de
+          # linker (-s MODULARIZE=1 etc.) que o SConstruct do projeto tambem
+          # passa nas etapas de compilacao; com werror (padrao do projeto)
+          # isso vira erro fatal. werror=0 e uma variavel de build oficial
+          # do SConstruct do proprio projeto (BoolVariable 'werror').
+          emscons scons -j8 mode=release werror=0
       - name: Coletar artefatos
         run: |
           mkdir -p dist
